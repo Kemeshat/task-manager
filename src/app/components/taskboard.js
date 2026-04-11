@@ -1,50 +1,129 @@
-'use client';
+"use client";
 
-import TaskList from './TaskList';
+/*
+Component: TaskBoard
+Purpose: Central controller of the app — owns all task state and business logic
+Type: Client Component (uses hooks)
+Props: None
+
+This component manages:
+- Task state
+- Filtering logic
+- localStorage persistence
+- All actions (add, toggle, delete, clear)
+*/
+
+import { useState, useEffect } from "react";
+import AddTaskForm from "./AddTaskForm";
+import TaskList from "./TaskList";
+import TaskStats from "./TaskStats";
+import FilterBar from "./FilterBar";
 
 export default function TaskBoard() {
-  const tasks = [{ id: 't1', title: 'Buy milk', done: false }];
+  /*
+  State: tasks
+  WHY: This is the source of truth for all tasks. Multiple components depend on it,
+  so it must live in a shared parent (lifting state up).
+  */
+  const [tasks, setTasks] = useState(() => {
+    /*
+    WHY typeof window check:
+    Next.js renders on the server first. localStorage only exists in the browser.
+    This prevents a crash during server-side rendering.
+    */
+    if (typeof window === "undefined") return [];
 
-  function handleToggle(id) {
-    console.log('Toggle task', id);  // wired to state in Section 4
-  }
+    const saved = localStorage.getItem("tasks");
+    return saved ? JSON.parse(saved) : [];
+  });
 
-  return <TaskList tasks={tasks} onToggle={handleToggle} />;
-}
+  /*
+  State: filter
+  WHY: UI state that determines which subset of tasks is shown
+  */
+  const [filter, setFilter] = useState("all");
 
-'use client';
+  /*
+  Effect: Persist tasks to localStorage
+  WHY: Syncs React state with browser storage so data survives refresh
+  Dependency: runs whenever tasks change
+  */
+  useEffect(() => {
+    localStorage.setItem("tasks", JSON.stringify(tasks));
+  }, [tasks]);
 
-import { useState } from 'react';
-import TaskList from './TaskList';
+  // Add task (immutable update)
+  const addTask = (text) => {
+    const newTask = {
+      id: Date.now(),
+      text,
+      done: false,
+    };
 
-export default function TaskBoard() {
-  const [tasks, setTasks] = useState([
-    { id: 't1', title: 'Buy milk',    done: false },
-    { id: 't2', title: 'Write tests', done: false },
-  ]);
+    /*
+    WHY spread operator:
+    React detects changes by reference. Mutating the existing array would not trigger a re-render.
+    */
+    setTasks((prev) => [...prev, newTask]);
+  };
 
-  // WRONG — mutates state directly, no re-render
-  // tasks[0].done = true;  ← never do this
+  // Toggle task completion
+  const toggleTask = (id) => {
+    setTasks((prev) =>
+      prev.map((task) =>
+        task.id === id
+          ? { ...task, done: !task.done } // immutable update
+          : task
+      )
+    );
+  };
 
-  // RIGHT — return a brand new array
-  function handleToggle(id) {
-    setTasks(tasks.map((t) =>
-      t.id === id ? { ...t, done: !t.done } : t
-    ));
-  }
+  // Delete a task
+  const deleteTask = (id) => {
+    setTasks((prev) =>
+      prev.filter((task) => task.id !== id)
+    );
+  };
 
-  function handleDelete(id) {
-    setTasks(tasks.filter((t) => t.id !== id));
-  }
+  // Remove all completed tasks
+  const clearCompleted = () => {
+    setTasks((prev) =>
+      prev.filter((task) => !task.done)
+    );
+  };
 
-  const completedCount = tasks.filter((t) => t.done).length;
+  /*
+  Derived values (NOT stored in state)
+  WHY: These can be calculated from tasks. Storing them separately risks inconsistency bugs.
+  */
+  const filteredTasks = tasks.filter((task) => {
+    if (filter === "active") return !task.done;
+    if (filter === "done") return task.done;
+    return true;
+  });
+
+  const total = tasks.length;
+  const completed = tasks.filter((t) => t.done).length;
+  const active = total - completed;
 
   return (
-    <div className="max-w-lg mx-auto p-6">
-      <p className="text-sm text-gray-500 mb-4">
-        {completedCount} of {tasks.length} complete
-      </p>
-      <TaskList tasks={tasks} onToggle={handleToggle} onDelete={handleDelete} />
+    <div className="max-w-xl mx-auto space-y-6">
+      <AddTaskForm onAdd={addTask} />
+
+      <FilterBar filter={filter} setFilter={setFilter} />
+
+      <TaskList
+        tasks={filteredTasks}
+        onToggle={toggleTask}
+        onDelete={deleteTask}
+      />
+
+      <TaskStats
+        total={total}
+        active={active}
+        completed={completed}
+        onClear={clearCompleted}
+      />
     </div>
   );
 }
