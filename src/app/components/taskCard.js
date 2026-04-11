@@ -1,28 +1,19 @@
-export default function TaskCard({ title, done }) {
+export default function TaskCard({ task, onToggle, onDelete }) {
   return (
-    <div className="flex items-center gap-2 p-3 border-b">
+    <div className="flex justify-between bg-gray-800 p-3 rounded">
       <span
-        className={done ? 'line-through text-gray-400' : 'text-gray-900'}
+        onClick={() => onToggle(task.id)}
+        className={`cursor-pointer ${
+          task.done ? "line-through text-gray-400" : ""
+        }`}
       >
-        {title}                       {/* {} escapes into JS */}
+        {task.text}
       </span>
-      {done && <span className="text-green-600 text-xs font-bold">Done</span>}
+
+      <button onClick={() => onDelete(task.id)}>
+        ❌
+      </button>
     </div>
   );
 }
 
-'use client';
-
-export default function TaskCard({ title, done, id, onToggle }) {
-  return (
-    <div className="flex items-center justify-between p-3 border-b">
-      <span className={done ? 'line-through text-gray-400' : ''}>
-        {title}
-      </span>
-      <button
-        className="text-sm text-green-700 hover:underline"
-        onClick={() => onToggle(id)}
-      >Toggle</button>
-    </div>
-  );
-}
