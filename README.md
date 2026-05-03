@@ -1,4 +1,4 @@
-# Task Manager App (Next.js + Tailwind)
+# Full-Stack Task Manager with Next.js and Tailwind CSS
 
 ## Description
 
