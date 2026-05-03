@@ -1,33 +1,32 @@
 # Task Manager App (Next.js + Tailwind)
 
-## Setup Instructions
+## Description
+
+This project is a task management app where users can add, complete, delete, and filter tasks. It focuses on using React state and component structure to build a functional and interactive application.
+
+## Technologies Used
+
+* Next.js (App Router)
+* React
+* Tailwind CSS
+* JavaScript
+* localStorage
+
+## How to Run the Project
 
 1. Install dependencies:
-npm install
+   npm install
 
-2. Run development server:
-npm run dev
+2. Start the development server:
+   npm run dev
 
-3. Open in browser:
-http://localhost:3000
+3. Open in your browser:
+   http://localhost:3000
 
-## Features
+## What I Learned
 
-- Add tasks with validation
-- Toggle task completion
-- Delete individual tasks
-- Filter tasks (All / Active / Done)
-- View task statistics (total, active, completed)
-- Clear all completed tasks
-- Persist tasks using localStorage
+This project helped me understand how React state works across multiple components and why it’s important to keep it in one place. I also learned how to use map and filter for updating data instead of modifying it directly.
 
-## Design Decisions
+I ran into some setup issues, especially with Tailwind, which forced me to figure out how everything connects behind the scenes. That made me more comfortable debugging and fixing problems on my own.
 
-This app uses a dark mode design with a minimalist layout. 
-Tailwind utility classes were used to create spacing, color contrast, and responsive layout without custom CSS.
-
-## AI Usage Log
-
-- Used AI to generate initial component structure and project setup guidance
-- Asked AI to explain React state management concepts such as immutable updates and derived state
-- Used AI to debug Tailwind configuration issues and understand PostCSS setup changes in Tailwind v4
+Overall, this project helped me turn concepts like state, props, and persistence into something practical.
